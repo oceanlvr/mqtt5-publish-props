@@ -1,9 +1,11 @@
 const mqtt = require('mqtt')
 
-const host = 'broker.emqx.io'
-const port = '1883'
+const host = 'broker.mqttdashboard.com' // or broker.mqttdashboard.com
+const port = '8000' // 8000 for broker.mqttdashboard.com
+const protocol = 'ws' // ws for broker.mqttdashboard.com
+const connectUrl = `${protocol}://${host}:${port}`
+
 const clientId = `mqtt_${Math.random().toString(16).slice(3)}`
-const connectUrl = `mqtt://${host}:${port}`
 
 const client = mqtt.connect(connectUrl, {
   clientId,
@@ -11,6 +13,7 @@ const client = mqtt.connect(connectUrl, {
   connectTimeout: 4000,
   reconnectPeriod: 1000,
   protocolVersion: 5,
+  path: '/mqtt', // for broker.mqttdashboard.com
   properties: {
     topicAliasMaximum: 10,
     requestResponseInformation: true,
@@ -24,18 +27,18 @@ client.on('connect', () => {
   console.log('Connected')
   client.subscribe([topic], () => {
     console.log(`Subscribe to topic '${topic}'`)
+    client.publish(topic, 'nodejs mqtt test', {
+      qos: 2,
+      properties: {
+        topicAlias: 'test',
+      },
+      retain: false
+    }, (error) => {
+      if (error) {
+        console.error(error)
+      }
+    })
   })
-  // setInterval(() => client.publish(topic, 'nodejs mqtt test', {
-  //   qos: 0,
-  //   properties: {
-  //     topicAlias: 'test',
-  //   },
-  //   retain: false
-  // }, (error) => {
-  //   if (error) {
-  //     console.error(error)
-  //   }
-  // }), 1000)
 })
 
 client.on('message', (topic, payload) => {
