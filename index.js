@@ -29,9 +29,12 @@ client.on('connect', () => {
     console.log(`Subscribe to topic '${topic}'`)
     client.publish(topic, 'nodejs mqtt test', {
       qos: 2,
-      properties: {
-        topicAlias: 'test',
-      },
+      // properties: {
+      //   topicAlias: 'test',
+      // userProperties: {
+      //   myprop: "myprop value"
+      // }
+      // },
       retain: false
     }, (error) => {
       if (error) {
@@ -41,6 +44,11 @@ client.on('connect', () => {
   })
 })
 
-client.on('message', (topic, payload) => {
-  console.log('Received Message:', topic, payload.toString())
+client.on('message', (topic, payload, packet) => {
+  console.log(`=====Received Message=====
+from topic: ${topic}
+payload:    ${payload.toString()}
+packet:     ${packet.toString()}
+properties: ${packet.properties}
+`)
 })
